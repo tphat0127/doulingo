@@ -3,6 +3,7 @@ const { Topic } = require("../models/Topic.model");
 // Get List Topic
 module.exports.getTopic = (req, res, next) => {
   return Topic.find()
+  .populate("chapterList")
     .then((topic) => {
       return res.status(200).json(topic);
     })

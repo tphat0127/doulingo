@@ -9,6 +9,7 @@ const RoleController = require("./controllers/Role.controller");
 const TopicController = require("./controllers/Topic.controller");
 const QuestionController = require("./controllers/Question.controller");
 const AnswerController = require("./controllers/Answer.controller");
+const ChapterController = require("./controllers/Chapter.controller");
 
 app.use(cors());
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api", UserController);
 app.use("/api", RoleController);
 app.use("/api", TopicController);
+app.use("/api", ChapterController);
 app.use("/api", QuestionController);
 app.use("/api", AnswerController);
 
