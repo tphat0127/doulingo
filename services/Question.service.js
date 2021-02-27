@@ -2,6 +2,7 @@ const { model } = require("mongoose");
 const { Question } = require("../models/Question.model");
 const { Answer } = require("../models/Answer.model");
 const { Chapter } = require("../models/Chapter.model");
+const { User } = require("../models/User.model");
 
 // Get List Questions
 module.exports.getQuestion = (req, res, next) => {
@@ -108,7 +109,6 @@ module.exports.updateQuestion = (req, res, next) => {
 module.exports.finalResult = async (req, res, next) => {
   const {choose} = req.body;
   const {id} = req.params;
-  const result = false;
   try {
     const question = await Question.findById(id);
     if (!question) return res.status(404).json({ message: "question not found" });
@@ -118,6 +118,11 @@ module.exports.finalResult = async (req, res, next) => {
 
     //console.log(answer.trueAnswer, choose)
     const result = await answer.trueAnswer === choose;
+    if(result) {
+      User.findById(req.user._id)
+        .then(u =>{ u.level += 1; u.save()} )
+        .catch(err => console.log(err))
+    }
     
     return res
       .status(200)

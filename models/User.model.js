@@ -14,7 +14,7 @@ const UserSchema = mongoose.Schema({
     ref: "Role",
     default: "602b1a324b9eab3104d7d153",
   },
-});
+}); 
 
 UserSchema.pre("save", function (next) {
   console.log("pre save", this);
