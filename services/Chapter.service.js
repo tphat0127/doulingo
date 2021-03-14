@@ -1,5 +1,9 @@
 const { Chapter } = require("../models/Chapter.model");
 const { Topic } = require("../models/Topic.model");
+const { Question } = require("../models/Question.model");
+const { User } = require("../models/User.model");
+const { UserChapter } = require("../models/ChapterUser.model");
+const mongoose = require('mongoose');
 
 // Get List Chapter
 module.exports.getChapter = (req, res, next) => {
@@ -87,3 +91,37 @@ module.exports.updateChapter = (req, res, next) => {
 //     })
 //     .then
 };
+module.exports.StartChapter = async (req, res, next) => {
+  const { level, part} = req.body;
+  const uc = await UserChapter.findOne({"chapterId": req.params.chapterId})
+  if(uc) return res.status(500).json({ message: "Chapter already exists." });
+  
+  const newUC = new UserChapter({
+    chapterId: req.params.chapterId,
+    level,
+    part
+  });
+  newUC.save();
+  User.findById(req.user._id)
+    .then(u => {
+      u.chapterJoin.push(newUC);
+      u.save();
+      res.status(200).json(u)
+    })
+    .catch(err => { res.status(400).json(err)});
+};
+module.exports.RenderQuestion = async (req, res, next) => {
+  const chapterId = req.params.chapterId;
+  try {
+    const user = await User.findOne(
+      {_id: req.user._id}
+    ).populate("chapterJoin");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const uc = user.chapterJoin.find(x => x.chapterId == chapterId);
+    const questionList = await Question.find({chapterId, "level": uc.level, "part": uc.part})
+    if (!questionList) return res.status(404).json({ message: "questionList not found" });
+    return res.status(200).json(questionList);
+  } catch (e) {
+    res.status(500).send(e);
+  }
+}

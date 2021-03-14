@@ -11,18 +11,15 @@ module.exports.validateAddQuestion = async (req, res, next) => {
   const answerId = req.body.answerId;
   const error = {};
 
-  if (!authorId) {
-    error.authorId = "authorId is required";
-  }
   if (!chapterId) {
     error.topicId = "chapterId is required";
   }
   if (!contentQuestion) {
     error.contentQuestion = "contentQuestion is required";
   }
-  if (!answerId) {
-    error.answerId = "answerId is required";
-  }
+  // if (!answerId) {
+  //   error.answerId = "answerId is required";
+  // }
   if (!typeQuestion) {
     error.typeQuestion = "typeQuestion is required";
   }

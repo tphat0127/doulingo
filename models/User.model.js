@@ -7,7 +7,7 @@ const UserSchema = mongoose.Schema({
   fullName: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   avatarUrl: { type: String },
-  level: { type: Number, default: 0 },
+  chapterJoin: [{type: mongoose.Schema.Types.ObjectId, ref: "UserChapter",}],
   status: { type: String, default: true },
   role: {
     type: mongoose.Schema.Types.ObjectId,

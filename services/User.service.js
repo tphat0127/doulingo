@@ -88,6 +88,7 @@ module.exports.getMe = (req, res, next) => {
       path: "role",
       select: "name_Role"
     })
+    .populate("chapterPass")
     .then(user => {
       res.status(200).json(user);
     })

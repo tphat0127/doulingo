@@ -25,6 +25,9 @@ module.exports.createQuestion = (req, res, next) => {
     status,
     image,
     questionId,
+    answerId,
+    level,
+    part
   } = req.body;
   const authorId = req.user._id;
 
@@ -37,6 +40,9 @@ module.exports.createQuestion = (req, res, next) => {
     status,
     image,
     questionId,
+    answerId, 
+    level,
+    part
   });
   Chapter.findById(chapterId)
     .then(c => {
@@ -119,9 +125,12 @@ module.exports.finalResult = async (req, res, next) => {
     //console.log(answer.trueAnswer, choose)
     const result = await answer.trueAnswer === choose;
     if(result) {
-      User.findById(req.user._id)
-        .then(u =>{ u.level += 1; u.save()} )
-        .catch(err => console.log(err))
+      const UC = await User.findOne({_id: req.user._id});
+      const x = UC.chapterJoin;
+      const y = await UserChapter.findOne({_id: x})
+      y.level +=1;
+      y.save();
+      if(y.level === y.maxLevel) y.part +=1;
     }
     
     return res
