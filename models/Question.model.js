@@ -8,7 +8,7 @@ const QuestionSchema = mongoose.Schema({
   createdDate: { type: Date, required: true, default: Date.now() },
   status: { type: Boolean, required: true, default: true },
   image: { type: String, required: true },
-  answerId: [{ type: mongoose.Schema.Types.ObjectId, ref: "Answer" }],
+  answerId: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" },
   level: { type: Number, required: true, default: 0 },
   part: { type: Number, required: true, default: 0 },
 });

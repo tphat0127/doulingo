@@ -1,5 +1,5 @@
 const { Answer } = require("../models/Answer.model");
-
+const { Question } = require("../models/Question.model");
 // Get List Answer
 module.exports.getAnswer = (req, res, next) => {
   return Answer.find()
@@ -13,15 +13,24 @@ module.exports.getAnswer = (req, res, next) => {
 
 // Create the answer
 module.exports.createAnswer = (req, res, next) => {
-  const { typeAnswer, answerArray, trueAnswer } = req.body;
-
-  Answer.create({ typeAnswer, answerArray, trueAnswer })
-    .then((answer) => {
-      res.status(200).json(answer);
+  const { typeAnswer, answerArray, trueAnswer, questionId } = req.body;
+  const answer = new Answer({
+    typeAnswer, answerArray, trueAnswer
+  })
+  Question.findById(questionId)
+    .then(q => {
+      if (!q)
+        return Promise.reject({
+            status: 404,
+            message: "question not found",
+        });
+        q.answerId = answer;
+        return Promise.all([answer.save(), q.save()]);
     })
     .catch((err) => {
       return res.status(500).json(err);
     });
+  
 };
 
 // Delete the answer

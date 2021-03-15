@@ -1,12 +1,13 @@
 const { model } = require("mongoose");
 const { Question } = require("../models/Question.model");
-const { Answer } = require("../models/Answer.model");
+const { UserChapter } = require("../models/ChapterUser.model");
 const { Chapter } = require("../models/Chapter.model");
 const { User } = require("../models/User.model");
 
 // Get List Questions
 module.exports.getQuestion = (req, res, next) => {
   return Question.find()
+    .populate("answerId")
     .then((question) => {
       return res.status(200).json(question);
     })
@@ -40,7 +41,7 @@ module.exports.createQuestion = (req, res, next) => {
     status,
     image,
     questionId,
-    answerId, 
+    answerId,
     level,
     part
   });
@@ -113,30 +114,29 @@ module.exports.updateQuestion = (req, res, next) => {
 };
 //result
 module.exports.finalResult = async (req, res, next) => {
-  const {choose} = req.body;
-  const {id} = req.params;
-  try {
-    const question = await Question.findById(id);
-    if (!question) return res.status(404).json({ message: "question not found" });
-    
-    const answer = await Answer.findById(question.answerId);
-    if (!answer) return res.status(404).json({ message: "answer not found" });
-
-    //console.log(answer.trueAnswer, choose)
-    const result = await answer.trueAnswer === choose;
-    if(result) {
-      const UC = await User.findOne({_id: req.user._id});
-      const x = UC.chapterJoin;
-      const y = await UserChapter.findOne({_id: x})
-      y.level +=1;
-      y.save();
-      if(y.level === y.maxLevel) y.part +=1;
-    }
-    
-    return res
-      .status(200)
-      .json({ message: "Successfully", result: result, trueAnswer: answer.trueAnswer });
-  } catch(e) {
-    res.status(500).json(e);
-  }
+  const { choose } = req.body;
+  const { id } = req.params;
+  const question = await Question.findById(id);
+  const chapterId = question.chapterId
+  const user = await User.findOne({ _id: req.user._id });
+  const chapterJoin = user.chapterJoin;
+  const userChapter = await UserChapter.findOne({ _id: chapterJoin, chapterId });
+  const chapter = await Chapter.findById(chapterId);
+  
+  console.log(chapter.part)
+  Question.findById(id)
+    .populate("answerId")
+    .then(q => {
+      const result = q.answerId.trueAnswer == choose;
+      if (result) {
+        if (userChapter.part < chapter.maxPart) userChapter.part += 1;
+        if (userChapter.part === chapter.maxPart) userChapter.level += 1;
+      }
+      return Promise.all([res.status(200).json({
+        message: "Successfully", result: result, yourAnswer: choose, trueAnswer: q.answerId.trueAnswer
+      }), userChapter.save()])
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    })
 }

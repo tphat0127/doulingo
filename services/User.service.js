@@ -44,7 +44,7 @@ module.exports.login = (req, res, next) => {
         role: _user.role,
       };
       return jwtSign(payload, config.JWT_SECRET_KEY, {
-        expiresIn: "1h",
+        expiresIn: "24h",
       }).then((token) => {
         return res.status(200).json({ message: "login successfully", token });
       });
@@ -84,11 +84,11 @@ module.exports.updatePassword = (req, res, next) => {
 
 module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
-    .populate({
-      path: "role",
-      select: "name_Role"
-    })
-    .populate("chapterPass")
+    // .populate({
+    //   path: "role",
+    //   select: "name_Role"
+    // })
+    .populate("chapterJoin")
     .then(user => {
       res.status(200).json(user);
     })
@@ -235,13 +235,14 @@ module.exports.searchUser = (req, res, next) => {
 };
 
 module.exports.getAccountInfo = (req, res, next) => {
-  const { userName } = req.query;
-  console.log("account", userName);
-  return User.find({ userName })
+  const { userName } = req.query.user;
+  console.log("account",  );
+  return User.find({ userName: req.query.user })
     .populate({
       path: "role",
       select: "name_Role"
     })
+    .populate("chapterJoin")
     .then((user) => {
       if(!user) return Promise.reject({
         status: 404,
