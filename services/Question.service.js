@@ -59,6 +59,18 @@ module.exports.createQuestion = (req, res, next) => {
     .catch((err) => res.status(500).json(err));
 }
 
+//Upload image
+module.exports.uploadImage = (req, res, next) => {
+  const {id} = req.params;
+  Question.findById(id)
+    .then((q) => {
+      if (!q) return Promise.reject({ message: "Question not found" });
+      question.image = `${req.file.fieldname}s/${req.file.filename}`;
+      return q.save();
+    })
+    .then((q) => res.status(200).json(q))
+    .catch((err) => res.json(err));
+};
 
 // Delete the question =>>>> chua fix
 module.exports.deleteQuestionById = (req, res, next) => {

@@ -93,10 +93,15 @@ module.exports.updateChapter = (req, res, next) => {
 };
 module.exports.StartChapter = async (req, res, next) => {
   const { level, part} = req.body;
-  // const uc = await UserChapter.findOne({"chapterId": req.params.chapterId});
-  // const user = await User.findOne(req.user._id);
-  // if(uc) return res.status(500).json({ message: "Chapter already exists." });
-  
+  ///kiem tra da tham gia chapter chua
+  const user = await User.findOne(
+    {_id: req.user._id}
+  ).populate("chapterJoin");
+  if (!user) return res.status(404).json({ message: "User not found" });
+  const uc = user.chapterJoin.find(x => x.chapterId == req.params.chapterId);
+  if(uc) return res.status(500).json({ message: "Chapter already exists." }); 
+
+
   const newUC = new UserChapter({
     chapterId: req.params.chapterId,
     level,

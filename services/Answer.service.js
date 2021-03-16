@@ -25,7 +25,7 @@ module.exports.createAnswer = (req, res, next) => {
             message: "question not found",
         });
         q.answerId = answer;
-        return Promise.all([answer.save(), q.save()]);
+        return Promise.all([answer.save(), q.save(), res.status(200).json(q)]);
     })
     .catch((err) => {
       return res.status(500).json(err);
